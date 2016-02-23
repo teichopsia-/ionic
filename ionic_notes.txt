@@ -1,0 +1,6 @@
+>> ionic start <folder_name> <some_other_thing>
+>> ionic start conFusion sidemenu
+
+>> ionic serve #starts serving the project
+
+>> ionic serve --lab #to show android and ios ui on a single page
