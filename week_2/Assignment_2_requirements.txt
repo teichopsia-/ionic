@@ -1,0 +1,35 @@
+Assignment 2 requirements
+
+Task 1
+
+Menu -> details of a dish -> button to header bar with two options:
+    
+    - add a button to the header bar
+      - pop over with two options: "Add to favorites", "Add comment"
+    1- adding dish directly to list of favorites
+    2- adding comments to dish
+    
+ 
+Task 2
+
+    After clicking on "Add to favorites":
+        Everything is set up in the favoriteFactory. Some of the code can be reused
+        from the menuController.
+        add to favorites should automatically be added to list of favorites.
+        
+
+
+Task 3
+
+    Clicking on add comment:
+        Should pop up a modal with form containing three fields:
+        "Rating", "Your name", and "Your commment".
+        Comment should be added to the particular dish.
+        Work needs to be done in the Dishdetailcontroller.
+        There is some sample code that can be used from dishCommentController.
+ 
+ 
+For this Assignment we are going to make use of: forms, modals and popovers.
+
+
+ 

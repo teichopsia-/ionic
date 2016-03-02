@@ -1,4 +1,12 @@
 <ion-view view-title="Dish Details">
+
+  <ion-nav-buttons side="secondary">
+    <div class="buttons">
+      <button class="button button-icon icon ion-more"
+        ng-click="popover.show($event)"></button> <!-- why do we use .show ?-->
+    </div>
+  </ion-nav-buttons>
+
   <ion-content>
 
     <div class="card">
@@ -23,7 +31,7 @@
         <ul class="list">
           <li ng-repeat="comment in dish.comments | orderBy: orderText">
             <blockquote>
-              <p>{{comment.rating}} Starts</p>
+              <p>{{comment.rating}} Stars</p>
               <p>{{comment.comment}}</p>
               <footer>{{comment.author}}, {{comment.date | date:'MMM. dd, yyyy'}}</footer>
             </blockquote>

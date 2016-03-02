@@ -151,7 +151,10 @@ angular.module('conFusion.controllers', [])
             };
         }])
 
-        .controller('DishDetailController', ['$scope', '$stateParams', 'menuFactory', 'baseURL', function($scope, $stateParams, menuFactory, baseURL) {
+        .controller('DishDetailController', ['$scope',  '$ionicPopover', '$ionicModal', '$timeout', '$stateParams',
+                    'menuFactory', 'favoriteFactory', 'baseURL',
+                    function($scope, $ionicPopover, $ionicModal, $timeout, $stateParams, menuFactory,
+                             favoriteFactory, baseURL) {
 
             $scope.baseURL = baseURL;
             $scope.dish = {};
@@ -169,6 +172,50 @@ angular.module('conFusion.controllers', [])
                             }
             );
 
+            $ionicPopover.fromTemplateUrl('templates/dishdetail_popover.html', {
+              scope: $scope,
+            }).then(function(popover){
+              $scope.popover = popover;
+              console.log($scope.dish);
+            });
+
+            $scope.addFavorite = function(){
+              favoriteFactory.addToFavorites($scope.dish.id);
+              console.log("Item has been added");
+              $scope.popover.hide();
+            //$scope.popover.remove(); // is this correct? doesn't work correctly
+            };
+
+
+            $ionicModal.fromTemplateUrl('templates/dishdetail_comment.html', {
+              scope: $scope
+            }).then(function(modal){
+              $scope.modal = modal;
+            });
+
+            $scope.closeComment = function(){
+              $scope.modal.hide();
+              $scope.popover.hide();
+            };
+
+            $scope.addComment = function(){
+              $scope.modal.show();
+            };
+
+            $scope.submitComment = function() {
+
+              $scope.mycomment.date = new Date().toISOString();
+              $scope.mycomment.rating = parseInt($scope.mycomment.rating, 10);
+              console.log('comment being submitted', $scope.mycomment);
+              $scope.dish.comments.push($scope.mycomment);
+              menuFactory.getDishes().update({id:$scope.dish.id}, $scope.dish);
+              $scope.popover.hide();
+              //$scope.commentForm.$setPristine();
+
+               $timeout(function() {
+                 $scope.closeComment();
+            }, 1000);
+          };
 
         }])
 
