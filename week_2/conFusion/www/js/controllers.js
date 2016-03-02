@@ -161,6 +161,8 @@ angular.module('conFusion.controllers', [])
             $scope.showDish = false;
             $scope.message="Loading ...";
 
+            $scope.mycomment = {rating: 5, comment: "", author: "", date: ""};
+
             $scope.dish = menuFactory.getDishes().get({id:parseInt($stateParams.id,10)})
             .$promise.then(
                             function(response){
@@ -210,7 +212,7 @@ angular.module('conFusion.controllers', [])
               $scope.dish.comments.push($scope.mycomment);
               menuFactory.getDishes().update({id:$scope.dish.id}, $scope.dish);
               $scope.popover.hide();
-              //$scope.commentForm.$setPristine();
+            //  $scope.commentForm.$setPristine(); 
 
                $timeout(function() {
                  $scope.closeComment();
@@ -219,7 +221,7 @@ angular.module('conFusion.controllers', [])
 
         }])
 
-        .controller('DishCommentController', ['$scope', 'menuFactory', function($scope,menuFactory) {
+        .controller('DishCommentController', ['$scope', 'menuFactory', function($scope, menuFactory) {
 
             $scope.mycomment = {rating:5, comment:"", author:"", date:""};
 
