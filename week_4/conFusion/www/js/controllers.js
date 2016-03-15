@@ -1,6 +1,6 @@
 angular.module('conFusion.controllers', [])
 
-.controller('AppCtrl', function($scope, $ionicModal, $timeout, $localStorage) {
+.controller('AppCtrl', function($scope, $ionicModal, $timeout, $localStorage, $ionicPlatform, $cordovaCamera) {
 
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
@@ -12,6 +12,7 @@ angular.module('conFusion.controllers', [])
   // Form data for the login modal
   $scope.loginData = $localStorage.getObject('userinfo', '{}');
   $scope.reservation = {};
+  $scope.registration = {};
 
   // Create the login modal that we will use later
   $ionicModal.fromTemplateUrl('templates/login.html', {
@@ -42,34 +43,116 @@ angular.module('conFusion.controllers', [])
     }, 1000);
   };
 
-  $ionicModal.fromTemplateUrl('templates/reserve.html', {
-    scope: $scope
-    }).then(function(modal){
-      $scope.reserveform = modal;
-    });
+  // Create the reserve modal that we will use later
+ $ionicModal.fromTemplateUrl('templates/reserve.html', {
+   scope: $scope
+ }).then(function(modal) {
+   $scope.reservemodal = modal;
+ });
 
-    // Triggered in the login modal to close it
-    $scope.closeReserve = function(){
-      $scope.reserveform.hide();
-    };
+ // Triggered in the reserve modal to close it
+ $scope.closeReserve = function() {
+   $scope.reservemodal.hide();
+ };
 
-    // Open the login modal
-    $scope.reserve = function(){
-      $scope.reserveform.show();
-    };
+ // Open the reserve modal
+ $scope.reserve = function() {
+   $scope.reservemodal.show();
+ };
 
-    $scope.doReserve = function(){
-      console.log('Doing reservation', $scope.reservation);
+ // Perform the reserve action when the user submits the reserve form
+ $scope.doReserve = function() {
+   console.log('Doing reservation', $scope.reservation);
 
-      $timeout(function () {
-        $scope.closeReserve();
-      }, 1000);
-    };
-})
+   // Simulate a reservation delay. Remove this and replace with your reservation
+   // code if using a server system
+   $timeout(function() {
+     $scope.closeReserve();
+   }, 1000);
+ };
+
+ // Create the registration modal that we will use later
+ $ionicModal.fromTemplateUrl('templates/register.html', {
+     scope: $scope
+ }).then(function (modal) {
+     $scope.registerform = modal;
+ });
+
+ // Triggered in the registration modal to close it
+ $scope.closeRegister = function () {
+     $scope.registerform.hide();
+ };
+
+ // Open the registration modal
+ $scope.register = function () {
+     $scope.registerform.show();
+ };
+
+ // Perform the registration action when the user submits the registration form
+ $scope.doRegister = function () {
+     console.log('Doing reservation', $scope.reservation);
+
+     // Simulate a registration delay. Remove this and replace with your registration
+     // code if using a registration system
+     $timeout(function () {
+         $scope.closeRegister();
+     }, 1000);
+ };
+
+ $ionicPlatform.ready(function() {
+     var options = {
+         quality: 50,
+         destinationType: Camera.DestinationType.DATA_URL,
+         sourceType: Camera.PictureSourceType.CAMERA,
+         allowEdit: true,
+         encodingType: Camera.EncodingType.JPEG,
+         targetWidth: 100,
+         targetHeight: 100,
+         popoverOptions: CameraPopoverOptions,
+         saveToPhotoAlbum: false
+     };
+      $scope.takePicture = function() {
+         $cordovaCamera.getPicture(options).then(function(imageData) {
+             $scope.registration.imgSrc = "data:image/jpeg;base64," + imageData;
+         }, function(err) {
+             console.log(err);
+         });
+
+         $scope.registerform.show();
+
+     };
+
+     $scope.selectPicture = function() {
+
+      var options = {
+        quality: 50,
+        destinationType: Camera.DestinationType.DATA_URL,
+        sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
+        allowEdit: true,
+        encodingType: Camera.EncodingType.JPEG,
+        targetWidth: 100,
+        targetHeight: 100,
+        popoverOptions: CameraPopoverOptions,
+        saveToPhotoAlbum: false
+      };
+
+      $cordovaCamera.getPicture(options).then(function(imageData) {
+        $scope.registration.imgSrc = "data:image/jpeg;base64," + imageData;
+      }, function(err) {
+        console.log(err);
+      });
+
+      $scope.registerform.show(); // why do you show the form here?
+
+      };
+
+        });
+
+    })
 
 // added controllers from the previous course.
 .controller('MenuController', ['$scope', 'dishes', 'menuFactory', 'favoriteFactory','baseURL',
-            '$ionicListDelegate', function($scope, dishes, menuFactory, favoriteFactory, baseURL, $ionicListDelegate) {
+            '$ionicListDelegate', '$ionicPlatform', '$cordovaLocalNotification', '$cordovaToast', function($scope, dishes, menuFactory, favoriteFactory, baseURL, $ionicListDelegate, $ionicPlatform, $cordovaLocalNotification, $cordovaToast) {
 
             $scope.baseURL = baseURL;
             $scope.tab = 1;
@@ -118,7 +201,29 @@ angular.module('conFusion.controllers', [])
               console.log("index is " + index);
               favoriteFactory.addToFavorites(index);
               $ionicListDelegate.closeOptionButtons();
-            };
+
+              $ionicPlatform.ready(function(){
+                $cordovaLocalNotification.schedule({
+                  id: 1,
+                  title: "Added Favorite",
+                  text: $scope.dishes[index].name
+                }).then(function(){
+                  console.log('Added Favorite' + $scope.dishes[index].name);
+                },
+                  function(){
+                    console.log('Failed to add Notification');
+                  });
+
+                  $cordovaToast
+                    .show('Added Favorite' + $scope.dishes[index].name, 'long', 'center')
+                    .then(function(success){
+                      // success
+                    }, function(error){
+                      // error
+                    });
+
+              });
+            }; // end of add favorite
 
         }])
 
@@ -177,7 +282,27 @@ angular.module('conFusion.controllers', [])
 
             $scope.addFavorite = function(){
               favoriteFactory.addToFavorites($scope.dish.id);
-              console.log("Item has been added");
+              $ionicPlatform.ready(function () {
+
+             $cordovaLocalNotification.schedule({
+                 id: 1,
+                 title: "Added Favorite",
+                 text: $scope.dish.name
+             }).then(function () {
+                 console.log('Added Favorite '+$scope.dish.name);
+             },
+             function () {
+                 console.log('Failed to add Notification ');
+             });
+
+             $cordovaToast
+               .show('Added Favorite '+$scope.dish.name, 'long', 'bottom')
+               .then(function (success) {
+                   // success
+               }, function (error) {
+                   // error
+               });
+});
               $scope.popover.hide();
             //$scope.popover.remove(); // is this correct? doesn't work correctly
             };
@@ -285,13 +410,15 @@ angular.module('conFusion.controllers', [])
                   template: 'Are you sure you want to delete this item?'
                 });
 
-                confirmPopup.then(function(res){
-                  if (res){
-                    console.log("It has been deleted");
-                    favoriteFactory.deleteFromFavorites(index);
-                  } else {
-                    console.log('Delete Cancelled');
-                  }
+                confirmPopup.then(function (res) {
+                    if (res) {
+                        console.log('Ok to delete');
+                        favoriteFactory.deleteFromFavorites(index);
+                         // Vibrate 2s
+                         $cordovaVibration.vibrate(500);
+                    } else {
+                        console.log('Canceled delete');
+                    }
                 });
 
                 $scope.shouldShowDelete = false;
